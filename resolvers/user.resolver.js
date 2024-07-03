@@ -2,7 +2,7 @@ import { users } from "../dummyData/data.js"
 
 const userRevolver={
     Query:{
-        users:()=>{
+        users:(_,_,{req,res})=>{
             return users
         },
         user:(_,{userId}) =>{
