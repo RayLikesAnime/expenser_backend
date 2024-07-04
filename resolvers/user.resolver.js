@@ -67,6 +67,8 @@ const userRevolver={
             try{
 
                 const {username,password}=input;
+                if(!username || !password)
+                    throw new error("all fields are required");
                 const {user}=await context.authenticate("graphql-local",{username,password});
                 await context.login(user);
                 return user;
@@ -79,10 +81,10 @@ const userRevolver={
         logout:async(_,__,context)=>{
             try{
                 await context.logout();
-                req.session.destroy((err)=>{
+                context.req.session.destroy((err)=>{
                     if(err) throw err;
                 })
-                res.clearCookie("connect.sid");
+                context.res.clearCookie("connect.sid");
                 return {
                     message:"Logged out successfully"
                 }

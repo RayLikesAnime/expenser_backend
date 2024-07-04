@@ -10,7 +10,7 @@ const transactionResolver={
                     throw new Error("Unauthorized");
                 const userId=await context.getUser()._id;
 
-                const transactions=await Transaction.find({user:userId});
+                const transactions=await Transaction.find({userId});
                 return transactions;
 
 
@@ -22,13 +22,28 @@ const transactionResolver={
         transaction:async(_,{transactionId})=>{
             try{
 
-                const transaction=await Transaction.findById({transactionId});
+                const transaction=await Transaction.findById(transactionId);
                 return transaction;
 
             }catch(err){
                 console.error("Error in transaction:",err);
                 throw new Error(err.message || "internal server error");
             }
+        },
+        categoryStatistics:async(_,__,context)=>{
+            if(!context.getUser())
+                throw new Error("Unauthorized");
+            const userId=await context.getUser()._id;
+            const transactions=await Transaction.find({userId});
+            const categoryMap={};
+            transactions.forEach((transaction)=>{
+                if(!categoryMap[transaction.category]){
+                    categoryMap[transaction.category]=transaction.amount;
+                }else{
+                    categoryMap[transaction.category]+=transaction.amount;
+                }
+            });
+            return Object.entries(categoryMap).map(([category,totalAmount])=>({category,totalAmount}))
         }
     },
     Mutation:{
